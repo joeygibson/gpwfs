@@ -1,6 +1,6 @@
 module Car
 
-let driveTo (destination, petrol) =
+let driveTo destination petrol =
     let petrolNeeded =
         match destination with
             | "home" | "Home" -> 25

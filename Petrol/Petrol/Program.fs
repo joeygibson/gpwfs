@@ -16,7 +16,7 @@ let main argv =
             printfn "Current petrol: %d" petrol
             let destination = getDestination()
             printfn "Trying to drive to %s." destination
-            petrol <- driveTo(destination, petrol)
+            petrol <- driveTo destination petrol
             printfn "Made it to %s." destination
         with ex -> printfn "Error: %s" ex.Message
 
