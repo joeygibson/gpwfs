@@ -6,11 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Car.fs" />
-        <Compile Include="Filters.fs" />
-        <Compile Include="Functions.fs" />
-        <Compile Include="Program.fs" />
-        <Compile Include="Records.fs" />
+        <Compile Include="Program.fs"/>
     </ItemGroup>
 
 </Project>
