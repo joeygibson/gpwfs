@@ -1,6 +1,7 @@
 ﻿module Bank
 
 open Account
+open Journal
 open System
 
 type Action =
@@ -16,16 +17,25 @@ let getBalance() =
     printf "Opening balance: "
     Console.ReadLine()
 
-let getAction() =
+let getActionAndAmount() =
     printf "Deposit or Withdraw: "
 
     let input = Console.ReadLine()
 
-    match input with
+    let action = match input with
         | "deposit" | "Deposit" | "d" -> Deposit
         | "withdraw" | "Withdraw" | "w" -> Withdrawal
-        | "exit" | "exit" -> Exit
+        | "exit" | "ex" | "Exit" -> Exit
         | _ -> failwithf "Invalid action: %s" input
+
+    let amount =
+        if action <> Exit then
+            printf "Amount: "
+            float (Console.ReadLine())
+        else
+            0.
+
+    action, amount
 
 let processDeposit account =
     printf "Amount to deposit: "
@@ -39,10 +49,21 @@ let processWithdrawal account =
 
     withdraw account (float amount)
 
+let withdrawWithConsoleJournal = journalAs "withdraw" consoleJournal withdraw
+let depositWithConsoleJournal = journalAs "deposit" consoleJournal deposit
+
+let withdrawWithFileJournal = journalAs "withdraw" fileSystemJournal withdraw
+let depositWithFileJournal = journalAs "deposit" fileSystemJournal deposit
+
 [<EntryPoint>]
 let main argv =
     printfn "Welcome to FooBar Bank\n"
 
+    let depositJournal = depositWithFileJournal
+    let withdrawalJournal = withdrawWithFileJournal
+//    let depositJournal = depositWithConsoleJournal
+//    let withdrawalJournal = withdrawWithConsoleJournal
+    
     let name = getName()
     let balance = getBalance()
 
@@ -54,10 +75,10 @@ let main argv =
 
         account <-
             try
-                match getAction() with
-                    | Deposit -> processDeposit account
-                    | Withdrawal -> processWithdrawal account
-                    | Exit -> Environment.Exit(0); account
+                match getActionAndAmount() with
+                    | Deposit, amount -> depositJournal amount account
+                    | Withdrawal, amount -> withdrawalJournal amount account
+                    | Exit, _ -> Environment.Exit(0); account
             with ex -> printfn "Error: %s" ex.Message; account
 
     0

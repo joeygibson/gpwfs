@@ -8,6 +8,10 @@ type Customer = {
 let newCustomer (name : string) =
     let nameChunks = name.Split ' '
 
-    { FirstName = nameChunks.[0]
-      LastName = nameChunks.[1] }
+    if nameChunks.Length = 2 then
+        { FirstName = nameChunks.[0]
+          LastName = nameChunks.[1] }
+    else
+        { FirstName = nameChunks.[0]
+          LastName = "" }        
     
