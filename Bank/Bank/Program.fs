@@ -49,20 +49,23 @@ let processWithdrawal account =
 
     withdraw account (float amount)
 
-let withdrawWithConsoleJournal = journalAs "withdraw" consoleJournal withdraw
-let depositWithConsoleJournal = journalAs "deposit" consoleJournal deposit
+let withdrawWithConsoleJournal = withdraw |> journalAs "withdraw" consoleJournal
+let depositWithConsoleJournal = deposit |> journalAs "deposit" consoleJournal
 
-let withdrawWithFileJournal = journalAs "withdraw" fileSystemJournal withdraw
-let depositWithFileJournal = journalAs "deposit" fileSystemJournal deposit
+let withdrawWithFileJournal = withdraw |> journalAs "withdraw" fileSystemJournal
+let depositWithFileJournal = deposit |> journalAs "deposit" fileSystemJournal 
 
 [<EntryPoint>]
 let main argv =
     printfn "Welcome to FooBar Bank\n"
 
-    let depositJournal = depositWithFileJournal
-    let withdrawalJournal = withdrawWithFileJournal
-//    let depositJournal = depositWithConsoleJournal
-//    let withdrawalJournal = withdrawWithConsoleJournal
+    let useConsole = false
+    
+    let depositJournal, withdrawalJournal =
+        if useConsole then
+            depositWithConsoleJournal, withdrawWithConsoleJournal
+        else
+            depositWithFileJournal, withdrawWithFileJournal
     
     let name = getName()
     let balance = getBalance()
@@ -78,7 +81,7 @@ let main argv =
                 match getActionAndAmount() with
                     | Deposit, amount -> depositJournal amount account
                     | Withdrawal, amount -> withdrawalJournal amount account
-                    | Exit, _ -> Environment.Exit(0); account
+                    | Exit, _ -> Environment.Exit 0; account
             with ex -> printfn "Error: %s" ex.Message; account
 
     0
