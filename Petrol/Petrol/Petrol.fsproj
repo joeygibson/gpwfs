@@ -9,6 +9,7 @@
         <Compile Include="Car.fs" />
         <Compile Include="Collections.fs" />
         <Compile Include="Filters.fs" />
+        <Compile Include="Folding.fs" />
         <Compile Include="Functions.fs" />
         <Compile Include="MapsDictionariesSets.fs" />
         <Compile Include="Program.fs" />
