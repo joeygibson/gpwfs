@@ -10,6 +10,7 @@
         <Compile Include="Collections.fs" />
         <Compile Include="Filters.fs" />
         <Compile Include="Functions.fs" />
+        <Compile Include="MapsDictionariesSets.fs" />
         <Compile Include="Program.fs" />
         <Compile Include="Records.fs" />
     </ItemGroup>
