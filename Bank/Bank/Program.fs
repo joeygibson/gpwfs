@@ -20,27 +20,16 @@ let processWithdrawal account =
 
     withdraw account (float amount)
 
-let withdrawWithConsoleJournal amount = journalAs
-                                         (createTransaction amount "withdraw")
-                                         consoleJournal
-                                         withdraw
-                                         amount
-let depositWithConsoleJournal amount = journalAs
-                                         (createTransaction amount "deposit")
-                                          consoleJournal
-                                          deposit
-                                          amount
-
-let withdrawWithFileJournal amount = journalAs
-                                        (createTransaction amount "withdraw")
-                                         fileSystemJournal
-                                         withdraw
-                                         amount
-let depositWithFileJournal amount = journalAs
-                                        (createTransaction amount "deposit")
-                                         fileSystemJournal
-                                         deposit
-                                         amount
+let withdrawJournal amount = journalAs
+                                (createTransaction amount "withdraw")
+                                 composedJournal
+                                 withdraw
+                                 amount
+let depositJournal amount = journalAs
+                                (createTransaction amount "deposit")
+                                 composedJournal
+                                 deposit
+                                 amount
 
 let isValidCommand cmd = [ "deposit"; "Deposit"; "d"; "withdraw"; "Withdraw"; "w"; "x"]
                          |> List.contains cmd
@@ -54,14 +43,6 @@ let getAmount command =
 [<EntryPoint>]
 let main argv =
     printfn "Welcome to FooBar Bank\n"
-
-    let useConsole = true
-    
-    let depositJournal, withdrawJournal =
-        if useConsole then
-            depositWithConsoleJournal, withdrawWithConsoleJournal
-        else
-            depositWithFileJournal, withdrawWithFileJournal
     
     let name = getName()
 

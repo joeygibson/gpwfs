@@ -53,5 +53,12 @@ let journalAs (transaction : Transaction) (journal: Account -> Transaction -> un
         
         updatedAccount
         
+let composedJournal =
+    let loggers =
+        [fileSystemJournal
+         consoleJournal]
         
+    fun account transaction ->
+        loggers
+        |> List.iter (fun logger -> logger account transaction)
 
