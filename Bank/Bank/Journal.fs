@@ -25,13 +25,22 @@ let serialize transaction =
         transaction.Amount
         transaction.Succeeded
         
+let private accountsPath =
+    let path = @"/tmp/Bank"
+    Directory.CreateDirectory path |> ignore
+    path
+    
+let private buildPath account =
+    let customerName = sprintf "%s_%s" account.Customer.LastName account.Customer.FirstName
+    sprintf @"%s/%s_%O" (accountsPath) customerName account.Id
+        
 let fileSystemJournal account transaction =
-    let dirName = sprintf "/tmp/bank/%s_%s" account.Customer.FirstName account.Customer.LastName
+    let dir = buildPath account
+    dir |> Directory.CreateDirectory |> ignore
     
-    Directory.CreateDirectory(dirName) |> ignore
-    let filePath = sprintf "%s/%O.txt" dirName account.Id
+    let filePath = sprintf "%s/%d.txt" dir (transaction.Timestamp.ToFileTimeUtc())
     
-    System.IO.File.AppendAllText(filePath, (serialize transaction))
+    System.IO.File.WriteAllText(filePath, (serialize transaction))
     
 let consoleJournal account transaction =
     printfn "%s" (serialize transaction)
