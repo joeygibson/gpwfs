@@ -76,3 +76,13 @@ let flipCoin () = rng.NextDouble() > 0.5
 
 let coinFlips = [ for i in [0..100] -> flipCoin() ]
 let choices = List.choose (fun x -> if x then (Some x) else None) coinFlips
+
+let tryLoadCustomer id =
+    match id with
+    | id when id >= 2 && id <= 7 -> Some (sprintf "Customer %d" id)
+    | _ -> None
+
+let customerIds = [0..10]
+
+let existingCustomers = customerIds |> List.choose tryLoadCustomer
+
