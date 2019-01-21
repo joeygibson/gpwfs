@@ -32,7 +32,7 @@ let private accountsPath =
     
 let private buildPath account =
     let customerName = sprintf "%s_%s" account.Customer.LastName account.Customer.FirstName
-    sprintf @"%s/%s_%O" (accountsPath) customerName account.Id
+    sprintf @"%s/%s/%O" (accountsPath) customerName account.Id
         
 let fileSystemJournal account transaction =
     let dir = buildPath account
