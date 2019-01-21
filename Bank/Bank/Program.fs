@@ -20,11 +20,23 @@ let processWithdrawal account =
 
     withdraw account (float amount)
 
-let withdrawWithConsoleJournal = withdraw |> journalAs "withdraw" consoleJournal
-let depositWithConsoleJournal = deposit |> journalAs "deposit" consoleJournal
+let withdrawWithConsoleJournal amount = journalAs
+                                                 (createTransaction amount "withdraw")
+                                                 consoleJournal
+                                                 withdraw
+                                                 amount
+let depositWithConsoleJournal amount = journalAs
+                                                 (createTransaction amount "deposit")
+                                                  consoleJournal
+                                                  deposit
+                                                  amount
 
-let withdrawWithFileJournal = withdraw |> journalAs "withdraw" fileSystemJournal
-let depositWithFileJournal = deposit |> journalAs "deposit" fileSystemJournal 
+//let withdrawWithFileJournal amount = withdraw |> journalAs
+//                                                (createTransaction amount "withdraw")
+//                                                 fileSystemJournal
+//let depositWithFileJournal amount = deposit |> journalAs
+//                                                (createTransaction amount "deposit")
+//                                                 fileSystemJournal
 
 let isValidCommand cmd = [ "deposit"; "Deposit"; "d"; "withdraw"; "Withdraw"; "w"; "x"]
                          |> List.contains cmd
@@ -41,11 +53,11 @@ let main argv =
 
     let useConsole = false
     
-    let depositJournal, withdrawalJournal =
-        if useConsole then
-            depositWithConsoleJournal, withdrawWithConsoleJournal
-        else
-            depositWithFileJournal, withdrawWithFileJournal
+//    let depositJournal, withdrawalJournal =
+//        if useConsole then
+//            depositWithConsoleJournal, withdrawWithConsoleJournal
+//        else
+//            depositWithFileJournal, withdrawWithFileJournal
     
     let name = getName()
 
@@ -63,9 +75,9 @@ let main argv =
         printfn ""
         let account =
             match command with
-            | "deposit" | "Deposit" | "d" -> account |> depositJournal amount
-            | "withdraw" | "Withdraw" | "w" -> account |> withdrawalJournal amount
-            | _ -> failwithf "Invalid command: %A" command
+            | "deposit" | "Deposit" | "d" -> depositWithConsoleJournal amount account
+            | "withdraw" | "Withdraw" | "w" -> withdrawWithConsoleJournal amount account
+//            | _ -> failwithf "Invalid command: %A" command
         printfn "Current balance: $%0.2f" account.Balance
         account
     

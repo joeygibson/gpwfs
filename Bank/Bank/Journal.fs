@@ -1,30 +1,46 @@
 module Journal
+
 open Account
 open System
 open System.IO
 
-let formatMessage account message =
-    sprintf "%s - %-8s - %s - Balance: %.2f" (DateTime.UtcNow.ToString()) message
-        (account.Id.ToString()) (account.Balance)
+type Transaction = {
+    Timestamp: DateTime
+    Action: string
+    Amount: float
+    Succeeded: bool
+}
+
+let createTransaction amount action = {
+    Timestamp = DateTime.UtcNow
+    Action = action
+    Amount = amount
+    Succeeded = true
+}    
+    
+let serialize transaction =
+    sprintf "%O***%s***%0.2f***%b"
+        transaction.Timestamp
+        transaction.Action
+        transaction.Amount
+        transaction.Succeeded
         
-let fileSystemJournal account message =
+let fileSystemJournal account transaction =
     let dirName = sprintf "/tmp/bank/%s_%s" account.Customer.FirstName account.Customer.LastName
     
     Directory.CreateDirectory(dirName) |> ignore
     let filePath = sprintf "%s/%O.txt" dirName account.Id
     
-    let msg = sprintf "%s\n" (formatMessage account message)
+    System.IO.File.AppendAllText(filePath, (serialize transaction))
     
-    System.IO.File.AppendAllText(filePath, msg)
-    
-let consoleJournal account message =
-    printfn "%s" (formatMessage account message)
+let consoleJournal account transaction =
+    printfn "%s" (serialize transaction)
       
-let journalAs (opName : string) (journal: Account -> string -> unit)
+let journalAs (transaction : Transaction) (journal: Account -> Transaction -> unit)
     (op : Account -> float -> Account) (amount: float) (account: Account) : Account =
         let updatedAccount = op account amount
         
-        journal updatedAccount opName
+        journal updatedAccount transaction
         
         updatedAccount
         
