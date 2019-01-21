@@ -1,8 +1,10 @@
 ﻿module Bank
 
 open Account
+open FileSystem
 open Journal
 open System
+open Transaction
 
 let getName() =
     printf "Name: "
@@ -47,7 +49,10 @@ let main argv =
     let name = getName()
 
     let customer = Customer.newCustomer name
-    let openingAccount = Account.newAccount customer 0.0
+    let openingAccount = loadOrCreate customer
+    
+    printfn "Account: %O" openingAccount.Id
+    printfn "Starting balance: %0.2f\n" openingAccount.Balance
     
     let commands = seq {
         while true do

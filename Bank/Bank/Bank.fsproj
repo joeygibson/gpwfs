@@ -7,7 +7,9 @@
 
     <ItemGroup>
         <Compile Include="Customer.fs" />
+        <Compile Include="Transaction.fs" />
         <Compile Include="Account.fs" />
+        <Compile Include="FileSystem.fs" />
         <Compile Include="Journal.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>

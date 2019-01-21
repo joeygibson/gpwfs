@@ -1,39 +1,10 @@
 module Journal
 
 open Account
-open System
+open FileSystem
 open System.IO
+open Transaction
 
-type Transaction = {
-    Timestamp: DateTime
-    Action: string
-    Amount: float
-    Succeeded: bool
-}
-
-let createTransaction amount action = {
-    Timestamp = DateTime.UtcNow
-    Action = action
-    Amount = amount
-    Succeeded = true
-}    
-    
-let serialize transaction =
-    sprintf "%O***%s***%0.2f***%b"
-        transaction.Timestamp
-        transaction.Action
-        transaction.Amount
-        transaction.Succeeded
-        
-let private accountsPath =
-    let path = @"/tmp/Bank"
-    Directory.CreateDirectory path |> ignore
-    path
-    
-let private buildPath account =
-    let customerName = sprintf "%s_%s" account.Customer.LastName account.Customer.FirstName
-    sprintf @"%s/%s/%O" (accountsPath) customerName account.Id
-        
 let fileSystemJournal account transaction =
     let dir = buildPath account
     dir |> Directory.CreateDirectory |> ignore
