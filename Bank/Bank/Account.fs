@@ -8,12 +8,10 @@ type Account = {
     Balance : float
  }
 
-let newAccount customer (openingBalance : string) =
-    let balance = float openingBalance
-
+let newAccount customer (openingBalance : float) =
     { Id = System.Guid.NewGuid()
       Customer = customer
-      Balance = balance }
+      Balance = openingBalance }
 
 let deposit account (amount : float) =
     if amount < 0. then

@@ -4,38 +4,9 @@ open Account
 open Journal
 open System
 
-type Action =
-    | Deposit
-    | Withdrawal
-    | Exit
-
 let getName() =
     printf "Name: "
     Console.ReadLine()
-
-let getBalance() =
-    printf "Opening balance: "
-    Console.ReadLine()
-
-let getActionAndAmount() =
-    printf "Deposit or Withdraw: "
-
-    let input = Console.ReadLine()
-
-    let action = match input with
-        | "deposit" | "Deposit" | "d" -> Deposit
-        | "withdraw" | "Withdraw" | "w" -> Withdrawal
-        | "exit" | "ex" | "Exit" -> Exit
-        | _ -> failwithf "Invalid action: %s" input
-
-    let amount =
-        if action <> Exit then
-            printf "Amount: "
-            float (Console.ReadLine())
-        else
-            0.
-
-    action, amount
 
 let processDeposit account =
     printf "Amount to deposit: "
@@ -55,6 +26,15 @@ let depositWithConsoleJournal = deposit |> journalAs "deposit" consoleJournal
 let withdrawWithFileJournal = withdraw |> journalAs "withdraw" fileSystemJournal
 let depositWithFileJournal = deposit |> journalAs "deposit" fileSystemJournal 
 
+let isValidCommand cmd = [ "deposit"; "Deposit"; "d"; "withdraw"; "Withdraw"; "w"; "x"]
+                         |> List.contains cmd
+                         
+let isStopCommand = (=) "x"
+let getAmount command =
+    Console.WriteLine()
+    Console.Write "Enter amount: "
+    command, Console.ReadLine() |> float
+    
 [<EntryPoint>]
 let main argv =
     printfn "Welcome to FooBar Bank\n"
@@ -68,20 +48,34 @@ let main argv =
             depositWithFileJournal, withdrawWithFileJournal
     
     let name = getName()
-    let balance = getBalance()
 
     let customer = Customer.newCustomer name
-    let mutable account = Account.newAccount customer balance
-
-    while true do
-        printBalance account
-
-        account <-
-            try
-                match getActionAndAmount() with
-                    | Deposit, amount -> depositJournal amount account
-                    | Withdrawal, amount -> withdrawalJournal amount account
-                    | Exit, _ -> Environment.Exit 0; account
-            with ex -> printfn "Error: %s" ex.Message; account
+    let openingAccount = Account.newAccount customer 0.0
+    
+    let commands = seq {
+        while true do
+            Console.Write "(d)eposit, (w)ithdraw or e(x)it: "
+            yield Console.ReadLine()
+            Console.WriteLine()
+    }
+    
+    let processCommand account (command, amount) =
+        printfn ""
+        let account =
+            match command with
+            | "deposit" | "Deposit" | "d" -> account |> depositJournal amount
+            | "withdraw" | "Withdraw" | "w" -> account |> withdrawalJournal amount
+            | _ -> failwithf "Invalid command: %A" command
+        printfn "Current balance: $%0.2f" account.Balance
+        account
+    
+    let closingAccount =
+        commands
+        |> Seq.filter isValidCommand
+        |> Seq.takeWhile (not << isStopCommand)
+        |> Seq.map getAmount
+        |> Seq.fold processCommand openingAccount
+        
+    printfn "\nClosing balance: $%0.2f" closingAccount.Balance
 
     0
