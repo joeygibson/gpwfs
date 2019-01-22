@@ -2,6 +2,7 @@ module FileSystem
 
 open System
 open Account
+open Command
 open Customer
 open System.IO
 open Transaction

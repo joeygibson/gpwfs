@@ -1,6 +1,7 @@
 ﻿module Bank
 
 open Account
+open Command
 open FileSystem
 open Journal
 open System
@@ -32,11 +33,7 @@ let depositJournal amount = journalAs
                                  composedJournal
                                  deposit
                                  amount
-
-let isValidCommand cmd = [ "deposit"; "Deposit"; "d"; "withdraw"; "Withdraw"; "w"; "x"]
-                         |> List.contains cmd
                          
-let isStopCommand = (=) "x"
 let getAmount command =
     Console.WriteLine()
     Console.Write "Enter amount: "
@@ -65,16 +62,16 @@ let main argv =
         printfn ""
         let account =
             match command with
-            | "deposit" | "Deposit" | "d" -> depositJournal amount account
-            | "withdraw" | "Withdraw" | "w" -> withdrawJournal amount account
-            | _ -> failwithf "Invalid command: %A" command
+            | Deposit -> depositJournal amount account
+            | Withdraw -> withdrawJournal amount account
+            | Exit -> account
         printfn "Current balance: $%0.2f" account.Balance
         account
     
     let closingAccount =
         commands
-        |> Seq.filter isValidCommand
-        |> Seq.takeWhile (not << isStopCommand)
+        |> Seq.choose tryParseCommand
+        |> Seq.takeWhile ((<>) Exit)
         |> Seq.map getAmount
         |> Seq.fold processCommand openingAccount
         
