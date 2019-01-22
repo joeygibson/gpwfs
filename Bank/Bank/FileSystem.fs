@@ -38,8 +38,9 @@ let loadTransactions account path =
         |> Seq.map (File.ReadAllText >> deserialize)
         |> Seq.sortBy (fun txn -> txn.Timestamp)
         |> Seq.fold (fun account (txn : Transaction) ->
-            if txn.Action = "withdraw" then withdraw existingAccount txn.Amount
-            else deposit account txn.Amount) existingAccount
+            match txn.Action with
+            | Withdraw -> withdraw existingAccount txn.Amount
+            | Deposit -> deposit account txn.Amount) existingAccount
     
     filledAccount
     

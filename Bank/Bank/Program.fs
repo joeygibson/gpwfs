@@ -24,12 +24,12 @@ let processWithdrawal account =
     withdraw account (float amount)
 
 let withdrawJournal amount = journalAs
-                                (createTransaction amount "withdraw")
+                                (createTransaction amount Withdraw)
                                  composedJournal
                                  withdraw
                                  amount
 let depositJournal amount = journalAs
-                                (createTransaction amount "deposit")
+                                (createTransaction amount Deposit)
                                  composedJournal
                                  deposit
                                  amount
@@ -62,8 +62,8 @@ let main argv =
         printfn ""
         let account =
             match command with
-            | Deposit -> depositJournal amount account
-            | Withdraw -> withdrawJournal amount account
+            | AccountCommand Deposit -> depositJournal amount account
+            | AccountCommand Withdraw -> withdrawJournal amount account
             | Exit -> account
         printfn "Current balance: $%0.2f" account.Balance
         account
