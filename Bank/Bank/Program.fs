@@ -49,7 +49,10 @@ let main argv =
     let name = getName()
 
     let customer = Customer.newCustomer name
-    let openingAccount = loadOrCreate customer
+    let openingAccount = 
+        match (loadAccountFromDisk customer) with
+        | Some(account) -> account
+        | None -> newAccount customer 0.0
     
     printfn "Account: %O" openingAccount.Id
     printfn "Starting balance: %0.2f\n" openingAccount.Balance

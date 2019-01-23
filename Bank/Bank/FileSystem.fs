@@ -21,13 +21,13 @@ let buildPath (account:Account) =
     let customerDir = buildCustomerDirectory account.Customer
     sprintf @"%s/%O" customerDir account.Id
 
-let loadTransactions account path =
+let loadTransactions customer path =
     let accountDirs = Directory.GetDirectories path
     let accountId = Path.GetFileName accountDirs.[0]
-    
+
     let existingAccount = {
         Id = Guid.Parse accountId
-        Customer = account.Customer
+        Customer = customer
         Balance = 0.0
     }
     
@@ -43,12 +43,11 @@ let loadTransactions account path =
             | Deposit -> deposit account txn.Amount) existingAccount
     
     filledAccount
-    
-let loadOrCreate customer =
-    let initialAccount = newAccount customer 0.0
-    let path = buildCustomerDirectory initialAccount.Customer
+
+let loadAccountFromDisk customer =
+    let path = buildCustomerDirectory customer
     
     if Directory.Exists path then
-        loadTransactions initialAccount path
+        Some (loadTransactions customer path)
     else
-        initialAccount
+        None
