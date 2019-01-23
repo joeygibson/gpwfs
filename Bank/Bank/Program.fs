@@ -11,23 +11,12 @@ let getName() =
     printf "Name: "
     Console.ReadLine()
 
-let processDeposit account =
-    printf "Amount to deposit: "
-    let amount = Console.ReadLine()
-
-    deposit account (float amount)
-
-let processWithdrawal account =
-    printf "Amount to withdraw: "
-    let amount = Console.ReadLine()
-
-    withdraw account (float amount)
-
 let withdrawJournal amount = journalAs
                                 (createTransaction amount Withdraw)
                                  composedJournal
-                                 withdraw
+                                 withdrawSafe
                                  amount
+                                 
 let depositJournal amount = journalAs
                                 (createTransaction amount Deposit)
                                  composedJournal
@@ -52,10 +41,10 @@ let main argv =
     let openingAccount = 
         match (loadAccountFromDisk customer) with
         | Some(account) -> account
-        | None -> newAccount customer 0.0
+        | None -> newAccount customer 0.0 |> classifyAccount
     
-    printfn "Account: %O" openingAccount.Id
-    printfn "Starting balance: %0.2f\n" openingAccount.Balance
+    printfn "Account: %O" (openingAccount.GetField (fun a -> a.Id))
+    printfn "Starting balance: %0.2f\n" (openingAccount.GetField (fun a -> a.Balance))
     
     let commands = seq {
         while true do
@@ -71,7 +60,7 @@ let main argv =
             | AccountCommand Deposit -> depositJournal amount account
             | AccountCommand Withdraw -> withdrawJournal amount account
             | Exit -> account
-        printfn "Current balance: $%0.2f" account.Balance
+        printBalance account
         account
     
     let closingAccount =
@@ -81,6 +70,6 @@ let main argv =
         |> Seq.choose tryGetAmount
         |> Seq.fold processCommand openingAccount
         
-    printfn "\nClosing balance: $%0.2f" closingAccount.Balance
+    printBalance closingAccount
 
     0

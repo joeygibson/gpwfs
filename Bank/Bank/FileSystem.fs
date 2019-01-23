@@ -25,11 +25,10 @@ let loadTransactions customer path =
     let accountDirs = Directory.GetDirectories path
     let accountId = Path.GetFileName accountDirs.[0]
 
-    let existingAccount = {
-        Id = Guid.Parse accountId
-        Customer = customer
-        Balance = 0.0
-    }
+    let existingAccount =
+        { Id = Guid.Parse accountId
+          Customer = customer
+          Balance = 0.0 } |> classifyAccount
     
     let accountPath = sprintf "%s/%s" path accountId
     
@@ -39,8 +38,8 @@ let loadTransactions customer path =
         |> Seq.sortBy (fun txn -> txn.Timestamp)
         |> Seq.fold (fun account (txn : Transaction) ->
             match txn.Action with
-            | Withdraw -> withdraw existingAccount txn.Amount
-            | Deposit -> deposit account txn.Amount) existingAccount
+            | Withdraw -> withdrawSafe txn.Amount account 
+            | Deposit -> deposit txn.Amount account) existingAccount
     
     filledAccount
 

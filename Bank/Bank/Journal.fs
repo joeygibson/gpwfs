@@ -17,10 +17,10 @@ let consoleJournal account transaction =
     printfn "%s" (serialize transaction)
       
 let journalAs (transaction : Transaction) (journal: Account -> Transaction -> unit)
-    (op : Account -> float -> Account) (amount: float) (account: Account) : Account =
-        let updatedAccount = op account amount
+    (op : float -> RatedAccount -> RatedAccount) (amount: float) (account: RatedAccount) : RatedAccount =
+        let updatedAccount = op amount account 
         
-        journal updatedAccount transaction
+        journal (updatedAccount.GetField (fun a -> a)) transaction
         
         updatedAccount
         
