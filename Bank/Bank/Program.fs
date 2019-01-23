@@ -34,10 +34,13 @@ let depositJournal amount = journalAs
                                  deposit
                                  amount
                          
-let getAmount command =
+let tryGetAmount command =
     Console.WriteLine()
     Console.Write "Enter amount: "
-    command, Console.ReadLine() |> float
+    let amount = Console.ReadLine() |> Double.TryParse
+    match amount with
+        | true, amount -> Some(command, amount)
+        | false, _ -> None
     
 [<EntryPoint>]
 let main argv =
@@ -72,7 +75,7 @@ let main argv =
         commands
         |> Seq.choose tryParseCommand
         |> Seq.takeWhile ((<>) Exit)
-        |> Seq.map getAmount
+        |> Seq.choose tryGetAmount
         |> Seq.fold processCommand openingAccount
         
     printfn "\nClosing balance: $%0.2f" closingAccount.Balance
